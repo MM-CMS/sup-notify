@@ -1,0 +1,23 @@
+{
+  "name": "jpc-notify",
+  "version": "0.0.0",
+  "description": "Notify customers and staff of incidents.",
+  "main": "./bin/jpc-notify",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Richard Bradley <richard.bradley@joyent.com>",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^0.9.0",
+    "bunyan": "^1.3.3",
+    "csv": "^0.4.1",
+    "dashdash": "^1.7.0",
+    "ldapjs": "^0.7.1",
+    "restify": "",
+    "sdc-clients": "git://github.com/joyent/node-sdc-clients"
+  },
+  "directories": {
+    "bin": "./bin"
+  }
+}

@@ -1,0 +1,337 @@
+#!/usr/bin/env node
+
+var dd = require('dashdash');
+var csv = require('csv');
+var fs = require('fs');
+var moment = require('moment');
+
+var log = require('../lib/log');
+var config = require('../etc/config');
+
+var notify = require('../lib/index');
+
+var options = [
+  {
+    names: ["type"],
+    type: "string",
+    help: "REQUIRED: Type of notification",
+    helpArg: "maintenance|incident|emergency"
+  },
+  {
+    names: ["message_file"],
+    type: "string",
+    help: "REQUIRED: Path to a markdown file for the ticket's body",
+    helpArg: "FILE"
+  },
+  {
+    names: ["jira"],
+    type: "string",
+    help: "REQUIRED: JIRA for this notification",
+    helpArg: "INC-X"
+  },
+  {
+    names: ["subject"],
+    type: "string",
+    help: "Subject of the ticket. Defaults to: 'Notification regarding your instance(s)'",
+    default: "Notification regarding your instance(s)",
+    helpArg: "\"Subject goes here\""
+  },
+  {
+    names: ["status"],
+    type: "string",
+    help: "Status of the ticket that is created.",
+    default: "open",
+    helpArg: "open|pending"
+  },
+  {
+    names: ["send"],
+    type: "bool",
+    help: "Pass this variable to send the notifications to customers."
+  },
+  {
+    names: ["help", "h"],
+    type: "bool",
+    help: "Print this help and exit"
+  },
+  {
+    group: "Servers"
+  },
+  {
+    names: ["servers"],
+    type: "arrayOfString",
+    help: "List customers affected by compute nodes by hostname",
+    helpArg: "HOSTNAME"
+  },
+  {
+    names: ["servers_file"],
+    type: "string",
+    help: "List customers affected by compute nodes by hostname, as read from a file",
+    helpArg: "FILE"
+  },
+  {
+    group: "VMs"
+  },
+  {
+    names: ["vms"],
+    type: "arrayOfString",
+    help: "List customers affected by list of machines",
+    helpArg: "VM_UUID"
+  },
+  {
+    names: ["vms_file"],
+    type: "string",
+    help: "List customers affected by list of machines, as read from a file",
+    helpArg: "FILE"
+  },
+  {
+    group: "Windows",
+  },
+  {
+    names: ["windows_file"],
+    type: "string",
+    help: "CSV file containing ...",
+    helpArg: "/path/to/file.csv"
+  },
+  {
+    group: "Customers"
+  },
+  {
+    names: ["customer_emails"],
+    type: "string",
+    help: "List customers, as read from file.",
+    helpArg: "FILE"
+  },
+  {
+    group: "Environment",
+  },
+  {
+    names: ["url"],
+    type: "string",
+    help: "ZenDesk API URL",
+    helpArg: "https://help.joyent.com",
+    env: "NOTIFY_URL",
+  },
+  {
+    names: ["token"],
+    type: "string",
+    help: "ZenDesk API token",
+    env: "NOTIFY_TOKEN",
+  },
+  {
+    names: ["user"],
+    type: "string",
+    help: "ZenDesk API user",
+    env: "NOTIFY_USER",
+  }
+];
+
+var template = {};
+var errors = [];
+
+// Basic printing of customers/VMs
+var print_customers = function(customers, tickets){
+  var total_customers = 0;
+  var total_vms = 0;
+  customers.forEach(function(customer){
+    total_customers++;
+    console.log("- customer:", customer.login, "(" + customer.uuid + ")");
+    console.log("  - contact:", customer.email);
+    customer.cc.forEach(function(u){
+      console.log("    -    cc:", u.email)
+    })
+    customer.vms.forEach(function(vm){
+      total_vms++;
+      if(vm.internal_metadata['docker:id']){
+        console.log("  - vm:", vm.alias, "(" + vm.uuid + ") - docker_id:", vm.internal_metadata['docker:id'].slice(0,12));
+      } else {
+        console.log("  - vm:", vm.alias, "(" + vm.uuid + ")");
+      }
+    })
+  })
+  if(tickets){
+    console.log(tickets.length + "", "ticket(s) have been created for the above recipients.")
+  } else {
+    console.log("No tickets have been created (pass --send to actually notify customers)")
+  }
+  console.log("Total: %s vms across %s customers/tickets", total_vms, total_customers);
+  console.log("Logfile:", log.streams[0].path);
+};
+
+// Basic printing of customers
+var print_customer_emails = function(customers, tickets){
+  var total_customers = 0;
+  customers.forEach(function(customer){
+    total_customers++;
+    console.log("- customer:", customer.login, "(" + customer.uuid + ")");
+    customer.cc.forEach(function(u){
+      console.log("    -    cc:", u.email)
+    })
+  });
+  if(tickets){
+    console.log(tickets.length + "", "ticket(s) have been created for the above recipients.")
+  } else {
+    console.log("No tickets have been created (pass --send to actually notify customers)")
+  }
+  console.log("Total: %s customers", total_customers);
+  console.log("Logfile:", log.streams[0].path);
+}
+
+// Printing of customer tickets including window times
+var print_windows = function(customers, tickets){
+  var total_vms = 0;
+  var total_customers = 0;
+  Object.keys(customers).forEach(function(customer_uuid){
+    total_customers++;
+    var c = customers[customer_uuid];
+    console.log("- customer:    %s (%s)", c.uuid, c.email);
+    Object.keys(customers[c.uuid].windows).sort().forEach(function(date){
+      var d = moment(new Date(date.slice(0, 4), date.slice(4, 6)-1, date.slice(6, 8)));
+      console.log("  - date:      %s", d.format("D-MMM-YYYY"));
+      Object.keys(customers[c.uuid].windows[date]).sort().forEach(function(w){
+        console.log("    - window:  %s", customers[c.uuid].windows[date][w].time_utc, "UTC / " + customers[c.uuid].windows[date][w].time_pdt + " PDT");
+        customers[c.uuid].windows[date][w].vms.forEach(function(machine){
+          total_vms++;
+          if(machine.internal_metadata['docker:id']){
+            console.log("      - vm:    %s (%s) - docker_id: %s", machine.uuid, machine.alias, machine.internal_metadata['docker:id'].slice(0,12));
+          } else {
+            console.log("      - vm:    %s (%s)", machine.uuid, machine.alias);
+          }
+        });
+      });
+    });
+  });
+  if(tickets){
+    console.log(tickets.length + "", "ticket(s) have been created for the above recipients.")
+  } else {
+    console.log("No tickets have been created (pass --send to actually notify customers)")
+  }
+  console.log("Total: %s vms across %s customers/tickets", total_vms, total_customers);
+  console.log("Logfile:", log.streams[0].path);
+};
+
+// Help output
+var print_help = function(){
+  var help = parser.help({includeEnv: true}).trimRight();
+  console.log("usage: jpc-notify [OPTIONS]")
+  console.log("options:")
+  console.log(help)
+};
+
+// Attempt to parse options; print help if error
+var parser = dd.createParser({options: options});
+try {
+  var opts = parser.parse(process.argv);
+} catch (e) {
+  print_help();
+  console.log("errors:")
+  console.log("   ", e.message);
+  process.exit(1);
+}
+
+// Print help if no args, else check existence of required args
+/*
+ * XXX: There's currently no checking for either VMs or Servers, but at least
+ * one is required for the script to run. Maybe something like:
+ *
+ * if((opts.vms || opts.vms_file) || (opts.servers || opts.servers_file)){
+ *   console.log('ok')
+ * }
+ */
+if(opts.help || opts._order.length == 0){
+  print_help();
+  process.exit(0);
+} else {
+  /* 
+   * Various arg checking for required args. Add to `errors` array
+   * if error, then we later check for length of this array to 
+   * see if we should output error out with help output
+   */
+
+  if(!opts.jira){
+    errors.push("--jira is required!")
+  }
+
+  if(!opts.message_file){
+    errors.push("--message_file is required!")
+  }
+
+  if(!opts.type){
+    errors.push("--type=incident is required!")
+  } else if(!(opts.type in config.notification_levels)){
+    var message = "--type must be one of: [ ";
+    Object.keys(config.notification_levels).forEach(function(t){
+      message += t + " "
+    })
+    message += "]";
+    errors.push(message)
+  }
+
+  if(opts.status && !(opts.status in config.notification_states)){
+    var message = "--status must be one of: [ ";
+    Object.keys(config.notification_states).forEach(function(s){
+      message += s + " ";
+    });
+    message += "]";
+    errors.push(message);
+  }
+
+  if(errors.length > 0){
+    print_help();
+    console.log("errors:")
+    errors.forEach(function(e){
+      console.log("   ", e)
+    })
+    process.exit(1)
+  } else {
+    log.info("Logfile:", log.streams[0].path)
+    // All required args passed by this point
+    template.message = fs.readFileSync(opts.message_file, 'utf8');
+    template.subject = opts.subject;
+    template.type = config.notification_levels[opts.type];
+    template.jira = opts.jira;
+    template.status = opts.status;
+    if(!opts.url || !opts.user || !opts.token){
+      log.warn("Environment not properly configured. Will not be able to send tickets.")
+    } else {
+      template.zd_api = {};
+      template.zd_api.url = opts.url;
+      template.zd_api.user = opts.user;
+      template.zd_api.token = opts.token;
+    }
+    if(opts.servers || opts.servers_file){
+      var servers;
+      if(opts.servers){
+        servers = opts.servers;
+      } else {
+        servers = fs.readFileSync(opts.servers_file, 'utf8').trim().split('\n');
+      }
+      notify.servers(servers, opts, template, function(err, res){
+        print_customers(res.customers, res.tickets);
+      });
+    } else if(opts.vms || opts.vms_file){
+      var vms;
+      if(opts.vms){
+        vms = opts.vms;
+      } else {
+        vms = fs.readFileSync(opts.vms_file, 'utf8').trim().split('\n');
+      }
+      notify.virtual_machines(vms, opts, template, function(err, res){
+        print_customers(res.customers, res.tickets);
+      });
+    } else if(opts.windows_file){
+      template.windows = true;
+      var windows_file = fs.readFileSync(opts.windows_file, 'utf8');
+      csv.parse(windows_file, {columns: ["vm_uuid", "owner_uuid", "date", "time_utc", "time_pdt"]}, function(err, data){
+        notify.windows(data, opts, template, function(err, res){
+          print_windows(res.customers, res.tickets);
+        })
+      });
+    } else if(opts.customer_emails){
+      template.customers = true;
+      var customer_emails = fs.readFileSync(opts.customer_emails, 'utf8').trim().split('\n');
+      notify.customers(customer_emails, opts, template, function(err, res){
+        print_customer_emails(res.customers, res.tickets);
+      });
+    }
+  }
+}
