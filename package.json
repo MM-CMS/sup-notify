@@ -19,7 +19,8 @@
     "restify": "",
     "sdc-clients": "git://github.com/joyent/node-sdc-clients",
     "sdc-clients-x": "git://github.com/chudley/node-sdc-clients-x",
-    "util": "^0.10.3"
+    "util": "^0.10.3",
+    "vasync": "^1.6.3"
   },
   "directories": {
     "bin": "./bin"
