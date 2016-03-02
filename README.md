@@ -4,6 +4,8 @@ node-jpc-notify is a CLI tool used by the Support and Operations teams to create
 
 Eventually this will also be a node_module used by some other forms of front-ends (API, web front-end).
 
+Head to the [wiki](https://hub.joyent.com/wiki/display/support/Support+Team%3A+jpc-notify) for more information on using this tool in the JPC.
+
 ## Usage
 
 Run `jpc-notify` or `jpc-notify --help` for help.
@@ -146,7 +148,7 @@ Total: 12 vms across 1 customers/tickets
 Logfile: /var/tmp/jpc-notify-2015-04-14T12:59:58.277Z.log
 ```
 
-**Note:** The following format is required for the windows CSV file. 
+**Note:** The following format is required for the windows CSV file.
 
 ```
 vm_uuid,owner_uuid,date,window_utc,window_pdt
@@ -160,7 +162,7 @@ vm_uuid,owner_uuid,date,window_utc,window_pdt
 |`window_utc`|This is the UTC window|String representing the time of the window|
 |`window_pdt`|This is the PDT window|String representing the time of the window|
 
-`date` must be formatted correctly, as it is parsed to generate a JavaScript `Date` object. `window_utc` and `window_pdt` are strings and their respective timezone is added to the output. 
+`date` must be formatted correctly, as it is parsed to generate a JavaScript `Date` object. `window_utc` and `window_pdt` are strings and their respective timezone is added to the output.
 
 ## Requirements
 
