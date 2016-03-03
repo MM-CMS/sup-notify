@@ -1,6 +1,6 @@
 # node-jpc-notify
 
-node-jpc-notify is a CLI tool used by the Support and Operations teams to create ZenDesk tickets for customers to inform them of incidents and maintenance. 
+node-jpc-notify is a CLI tool used by the Support and Operations teams to create ZenDesk tickets for customers to inform them of incidents and maintenance.
 
 Eventually this will also be a node_module used by some other forms of front-ends (API, web front-end).
 
@@ -146,7 +146,7 @@ Total: 12 vms across 1 customers/tickets
 Logfile: /var/tmp/jpc-notify-2015-04-14T12:59:58.277Z.log
 ```
 
-**Note:** The following format is required for the windows CSV file. 
+**Note:** The following format is required for the windows CSV file.
 
 ```
 vm_uuid,owner_uuid,date,window_utc,window_pdt
@@ -160,9 +160,15 @@ vm_uuid,owner_uuid,date,window_utc,window_pdt
 |`window_utc`|This is the UTC window|String representing the time of the window|
 |`window_pdt`|This is the PDT window|String representing the time of the window|
 
-`date` must be formatted correctly, as it is parsed to generate a JavaScript `Date` object. `window_utc` and `window_pdt` are strings and their respective timezone is added to the output. 
+`date` must be formatted correctly, as it is parsed to generate a JavaScript `Date` object. `window_utc` and `window_pdt` are strings and their respective timezone is added to the output.
 
 ## Requirements
 
 - VPN connection
 - Either personal ZD credentials, or API-only credentials
+
+## Future
+
+jpc-notify --jira=OPS-X --template=something instances uuid uuid uuid
+jpc-notify --template=something --servers hostname
+jpc-notify --template=something --windows
