@@ -188,7 +188,7 @@ var print_windows = function(customers, tickets){
       var d = moment(new Date(date.slice(0, 4), date.slice(4, 6)-1, date.slice(6, 8)));
       console.log("  - date:      %s", d.format("D-MMM-YYYY"));
       Object.keys(customers[c.uuid].windows[date]).sort().forEach(function(w){
-        console.log("    - window:  %s", customers[c.uuid].windows[date][w].time_utc, "UTC / " + customers[c.uuid].windows[date][w].time_pdt + " PDT");
+        console.log("    - window:  %s", customers[c.uuid].windows[date][w].time_utc, "UTC");
         customers[c.uuid].windows[date][w].vms.forEach(function(machine){
           total_vms++;
           if(machine.internal_metadata['docker:id']){
@@ -241,9 +241,9 @@ if(opts.help || opts._order.length == 0){
   print_help();
   process.exit(0);
 } else {
-  /* 
+  /*
    * Various arg checking for required args. Add to `errors` array
-   * if error, then we later check for length of this array to 
+   * if error, then we later check for length of this array to
    * see if we should output error out with help output
    */
 
@@ -321,7 +321,7 @@ if(opts.help || opts._order.length == 0){
     } else if(opts.windows_file){
       template.windows = true;
       var windows_file = fs.readFileSync(opts.windows_file, 'utf8');
-      csv.parse(windows_file, {columns: ["vm_uuid", "owner_uuid", "date", "time_utc", "time_pdt"]}, function(err, data){
+      csv.parse(windows_file, {columns: ["vm_uuid", "owner_uuid", "date", "time_utc"]}, function(err, data){
         notify.windows(data, opts, template, function(err, res){
           print_windows(res.customers, res.tickets);
         })
