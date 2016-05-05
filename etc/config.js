@@ -25,7 +25,14 @@ module.exports = {
 		    zd_type: "task",
 		    zd_category: "emergency_maintenance",
 		    zd_group_id: 20454559,
-		}
+		},
+    information: {
+      title: "Information",
+      jpc_name: "JPC-Notifications-Emergency-Information",
+      zd_type: "task",
+      zd_category: "information",
+      zd_group_id: 32126288
+    }
 	},
 	notification_catchall: {
 		jpc_name: "JPC-Notifications-All",
