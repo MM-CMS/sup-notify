@@ -49,6 +49,12 @@ var options = [
     help: "Pass this variable to send the notifications to customers."
   },
   {
+    names: ["organization"],
+    type: "bool",
+    help: "When used with --type=information, CC every user of the organisation.",
+    default: false
+  },
+  {
     names: ["help", "h"],
     type: "bool",
     help: "Print this help and exit"
@@ -162,9 +168,9 @@ var print_customer_emails = function(customers, tickets){
   var total_customers = 0;
   customers.forEach(function(customer){
     total_customers++;
-    console.log("- customer:", customer.login, "(" + customer.uuid + ")");
+    console.log("- customer:", customer.email, '-', customer.login, "(" + customer.uuid + ")");
     customer.cc.forEach(function(u){
-      console.log("    -    cc:", u.email)
+      console.log("    -   cc:", u.email)
     })
   });
   if(tickets){
@@ -290,6 +296,7 @@ if(opts.help || opts._order.length == 0){
     template.type = config.notification_levels[opts.type];
     template.jira = opts.jira;
     template.status = opts.status;
+    template.organization = opts.organization;
     if(!opts.url || !opts.user || !opts.token){
       log.warn("Environment not properly configured. Will not be able to send tickets.")
     } else {
