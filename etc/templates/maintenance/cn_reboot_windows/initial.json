@@ -1,0 +1,16 @@
+{
+    "name": "cn-reboot-windows",
+    "title": "Compute Node reboot windows",
+    "subject": "Maintenance affecting your Joyent instance(s)",
+    "version": "0.0.1",
+    "ticket_type": "maintenance",
+    "template_types": [
+        "windows"
+    ],
+    "required_fields": [
+        "instance_uuid",
+        "date_start",
+        "date_end"
+    ],
+    "template": "Hello,\n\nThe above instances will be restarted during their corresponding windows.\n\nHave a nice day."
+}

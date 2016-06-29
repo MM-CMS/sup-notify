@@ -3,7 +3,11 @@
     "title": "Compute Node reboot",
     "subject": "Incident affecting your Joyent instance(s)",
     "version": "0.0.1",
-    "type": "incident",
+    "ticket_type": "incident",
+    "template_types": [
+        "vms",
+        "servers"
+    ],
     "required_fields": [
         "date_start",
         "date_end"
