@@ -1,0 +1,12 @@
+{
+    "name": "cn-reboot",
+    "title": "Compute Node reboot",
+    "subject": "Incident affecting your Joyent instance(s)",
+    "version": "0.0.1",
+    "type": "incident",
+    "required_fields": [
+        "date_start",
+        "date_end"
+    ],
+    "template": "Hello,\n\nAt approximately {{date_start}}, the physical server that hosts the instance(s) listed above rebooted, and was confirmed to be back online at approximately {{date_end}}.\n\nOur Operations and Engineering teams are looking into this incident, and we will update you with any further information within 1 business day."
+}
