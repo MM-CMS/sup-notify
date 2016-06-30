@@ -25,38 +25,90 @@ The longer term goal is to have "some input" be an INC/CM JIRA ticket. This tick
 
 `jpc-notify` is the command you'll be working with, and it provides a number of interfaces to gather information and create ZenDesk tickets.
 
+Below are some examples of using the tool in its current state.
+
+### Individual instances
+
+```
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-jpc-notify
+$ ./bin/jpc-notify tickets create --jira=OPS-X --type=vms --date_start=20160701T100000Z --date_end=20160701T120000Z --template=incident/cn_reboot a36b984b-c67a-4018-a714-557a4e17d9ae 6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99
+Customer 4c27d519-f301-4d6b-a654-6b709082be72 has 1 instances affected
+Customer 7a970971-1386-49c4-9b85-f9b02adf7705 has 1 instances affected
+Hello,
+
+At approximately 10:00 (UTC), 01-Jul-2016, the physical server that hosts the instance(s) listed above rebooted, and was confirmed to be back online at approximately 12:00 (UTC), 01-Jul-2016.
+
+Our Operations and Engineering teams are looking into this incident, and we will update you with any further information within 1 business day.
+```
+
 ### Compute node reboot
 
-`jpc-notify --template=incident-cn-reboot --start_time=YYYYMMDDTHHMMSS --end_time=YYYYMMDDTHHMMSS --server=RA38274`
-
-### Upcoming compute node reboot
-
-#### Singular
-
-`jpc-notify --template=maintenance-cn-reboot --start_time=YYYYMMDDTHHMMSS --end_time=YYYYMMDDTHHMMSS --server=RA38274`
-
-#### Many
-
-`jpc-notify --template=maintenance-cn-reboot --schedule=/path/to/schedule.csv`
-
-Where `/path/to/schedule.csv` would be a csv containing:
+#### Passing servers as arguments
 
 ```
-RA3415342,20160201100000,20160201110000
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-jpc-notify
+$ ./bin/jpc-notify tickets create --type=servers --template=incident/cn_reboot --date_start=20160629T103000Z --date_end=20160629T104000Z 44454c4c-5100-1054-8057-c3c04f563432
+Customer 530961f3-3a6e-4ce6-bebd-e5be79f4ebc6 has 2 instances affected
+Customer 7b315468-c6be-46dc-b99b-9c1f59224693 has 1 instances affected
+...
 ```
 
-## Questions
+**Note** Server hostnames still to be supported.
 
-### 'Duration' or 'end time'?
+#### Using stdin
 
-I believe something like the following sounds nicer:
+```
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-jpc-notify
+$ cat sandbox/servers.txt | ./bin/jpc-notify tickets create --type=servers --template=incident/cn_reboot --date_start=20160629T103000Z --date_end=20160629T104000Z -
+Customer 9dce1460-0c4c-4417-ab8b-25ca478c5a78 has 4 instances affected
+Customer 530961f3-3a6e-4ce6-bebd-e5be79f4ebc6 has 2 instances affected
+...
+```
 
-> Compute node rebooted at 2015-02-01 10:00 UTC. Back only after 15 minutes.
+**Note** stdin will apply to `--type=vms`, too.
 
-than:
+### Upcoming reboot party (aka. windows)
 
-> Compute node rebooted at 2015-02-01 10:00 UTC. Back online at 2015-02-01 11:00 UTC.
+Now only works via stdin:
 
-However, it is not precise, and if the duration is particularly long then it sounds more detrimental initially.
+```
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-jpc-notify
+$ cat sandbox/windows.csv | ./bin/jpc-notify tickets create --type=windows --template=maintenance/cn_reboot_windows -
+Customer 4c27d519-f301-4d6b-a654-6b709082be72 has 2 days of maintenance
+    2016-06-29
+        Instance db9684bf-e78f-c7f8-9432-bc2e1472bc98's window is from 10:00:00 to 12:00:00
+    2016-07-01
+        Instance ecae6dce-67c4-4008-b8a7-fca5cceba8d4's window is from 10:00:00 to 12:00:00
+        Instance eb1f8e85-fb7f-4d6c-a0f4-6ddf11a8fe96's window is from 12:00:00 to 14:00:00
+        Instance a36b984b-c67a-4018-a714-557a4e17d9ae's window is from 14:00:00 to 16:00:00
+Customer 7a970971-1386-49c4-9b85-f9b02adf7705 has 2 days of maintenance
+    2016-06-29
+        Instance 6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99's window is from 10:00:00 to 12:00:00
+    TBD
+        Instance fb418bd0-9c30-6652-ff3b-961e8c7c2afa's window is from TBD to TBD
+Hello,
 
-Should this vary depending on template? For example, a compute node reboot incident might be better off having an exact end time, but an upcoming compute node reboot might be better having a duration.
+The above instances will be restarted during their corresponding windows.
+
+Have a nice day.
+```
+
+Where `sandbox/windows.csv` contains the following.
+
+```
+ecae6dce-67c4-4008-b8a7-fca5cceba8d4,20160701T100000Z,20160701T120000Z
+eb1f8e85-fb7f-4d6c-a0f4-6ddf11a8fe96,20160701T120000Z,20160701T140000Z
+a36b984b-c67a-4018-a714-557a4e17d9ae,20160701T140000Z,20160701T160000Z
+db9684bf-e78f-c7f8-9432-bc2e1472bc98,20160629T100000Z,20160629T120000Z
+6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99,20160629T100000Z,20160629T120000Z
+fb418bd0-9c30-6652-ff3b-961e8c7c2afa,TBD,TBD
+```
+
+**Note** While this is currently using the `maintenance/cn_reboot_windows` template, it's actually more suited to how our mass migrations. The tool *will* support passing a server uuid and window start/end times, like so:
+
+```
+server_0_uuid,20160701T100000Z,20160701T120000Z
+server_1_uuid,20160701T120000Z,20160701T140000Z
+server_2_uuid,20160701T140000Z,20160701T160000Z
+server_3_uuid,20160629T100000Z,20160629T120000Z
+```
