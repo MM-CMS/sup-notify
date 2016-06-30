@@ -19,6 +19,7 @@
     "restify": "",
     "sdc-clients": "git://github.com/joyent/node-sdc-clients",
     "sdc-clients-x": "git://github.com/chudley/node-sdc-clients-x",
+    "tabula": "^1.8.0",
     "util": "^0.10.3",
     "vasync": "^1.6.3"
   },

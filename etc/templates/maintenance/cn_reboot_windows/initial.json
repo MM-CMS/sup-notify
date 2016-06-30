@@ -1,10 +1,10 @@
 {
-    "name": "cn-reboot-windows",
     "title": "Compute Node reboot windows",
+    "description": "Notify users of many upcoming maintenance tasks of a similar kind in a single notification.",
     "subject": "Maintenance affecting your Joyent instance(s)",
     "version": "0.0.1",
     "ticket_type": "maintenance",
-    "template_types": [
+    "types": [
         "windows"
     ],
     "required_fields": [
