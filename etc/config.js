@@ -33,6 +33,7 @@ module.exports = {
             title: "Pending",
         }
     },
+    log_dir: '/var/tmp',
     "datacenters": {
         "eu-ams-1": {
             "cnapi": { "url": "http://10.1.0.111" },
