@@ -1,14 +1,14 @@
 {
-    "title": "Compute Node reboot windows",
+    "title": "Instance migration window",
     "description": "Notify users of many upcoming maintenance tasks of a similar kind in a single notification.",
     "subject": "Maintenance affecting your Joyent instance(s)",
     "version": "0.0.1",
     "ticket_type": "maintenance",
     "types": [
-        "windows_servers"
+        "windows_vms"
     ],
     "required_fields": [
-        "server_uuid",
+        "instance_uuid",
         "date_start",
         "date_end"
     ],
