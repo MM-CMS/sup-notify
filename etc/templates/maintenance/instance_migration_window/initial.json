@@ -12,5 +12,5 @@
         "date_start",
         "date_end"
     ],
-    "message": "Hello,\n\nThe above instances will be restarted during their corresponding windows.\n\nHave a nice day."
+    "message": "Hello,\n\nThe instances referenced in this ticket will be restarted during their corresponding windows.\n\nHave a nice day."
 }
