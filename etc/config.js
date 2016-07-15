@@ -12,7 +12,7 @@ module.exports = {
             jpc_name: "JPC-Notifications-Maintenance",
             zd_type: "task",
             zd_category: "maintenance",
-            zd_group_id: 20454559,
+            zd_group_id: 20454559, // 31797758 for sandbox
         },
         emergency: {
             title: "Emergency",
