@@ -5,14 +5,14 @@ module.exports = {
             jpc_name: "JPC-Notifications-Incident",
             zd_type: "problem",
             zd_category: "incident",
-            zd_group_id: 21225150,
+            zd_group_id: 21225150, // 31401808 for sandbox
         },
         maintenance: {
             title: "Maintenance",
             jpc_name: "JPC-Notifications-Maintenance",
             zd_type: "task",
             zd_category: "maintenance",
-            zd_group_id: 20454559, // 31797758 for sandbox
+            zd_group_id: 20454559, // 31385107 for sandbox
         },
         emergency: {
             title: "Emergency",
@@ -34,6 +34,7 @@ module.exports = {
         }
     },
     log_dir: '/var/tmp',
+    templates_directory: '../triton-cloud-notification-templates/new_notification_templates',
     "datacenters": {
         "eu-ams-1": {
             "cnapi": { "url": "http://10.1.0.111" },
