@@ -1,0 +1,27 @@
+var assert = require('assert-plus');
+var forkExecWait = require('forkexec').forkExecWait;
+var vasync = require('vasync');
+
+var JPC_NOTIFY = './bin/jpc-notify';
+
+describe('CLI', function(){
+    describe('Gather data by instance UUID list', function(){
+        it('args', function(done){
+            forkExecWait({argv: [
+                JPC_NOTIFY,
+                'tickets',
+                'create',
+                '--jira=TEST-X',
+                '--type=vms',
+                '--template=incidents/finished',
+                '--date_start=20160901T100000Z',
+                '--date_end=20160901T103000Z',
+                'ecae6dce-67c4-4008-b8a7-fca5cceba8d4'
+            ]}, function(err, info){
+                var output = info.stdout.split('\n');
+                assert.equal(output[1].slice(27), 'got 1 instances');
+                done();
+            });
+        });
+    });
+});

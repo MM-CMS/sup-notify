@@ -28,5 +28,9 @@
   },
   "directories": {
     "bin": "./bin"
+  },
+  "devDependencies": {
+    "forkexec": "^1.1.0",
+    "mocha": "^3.0.2"
   }
 }
