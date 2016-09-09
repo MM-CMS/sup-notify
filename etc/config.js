@@ -7,7 +7,7 @@ module.exports = {
             zd_category: "incident",
             zd_group_id: 21225150, // 31401808 for sandbox
         },
-        maintenance: {
+        scheduled: {
             title: "Maintenance",
             jpc_name: "JPC-Notifications-Maintenance",
             zd_type: "task",
@@ -20,6 +20,13 @@ module.exports = {
             zd_type: "task",
             zd_category: "emergency_maintenance",
             zd_group_id: 20454559,
+        },
+        general: {
+            title: "General Notice",
+            jpc_name: "JPC-Notifications-General",
+            zd_type: "task",
+            zd_category: "general_notice",
+            zd_group_id: 28487217
         }
     },
     notification_catchall: {
