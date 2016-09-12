@@ -7,7 +7,7 @@ module.exports = {
             zd_category: "incident",
             zd_group_id: 21225150, // 31401808 for sandbox
         },
-        scheduled: {
+        maintenance: {
             title: "Maintenance",
             jpc_name: "JPC-Notifications-Maintenance",
             zd_type: "task",
