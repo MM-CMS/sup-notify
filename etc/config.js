@@ -43,6 +43,7 @@ module.exports = {
     log_dir: '/var/tmp',
     templates_directory: '../triton-cloud-notification-templates/new_notification_templates',
     message_footer: '\nThanks,\nJoyent Support',
+    zendesk_create_concurrency: 1,
     "datacenters": {
         "eu-ams-1": {
             "cnapi": { "url": "http://10.1.0.111" },
