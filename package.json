@@ -1,8 +1,8 @@
 {
-  "name": "jpc-notify",
+  "name": "sebastian",
   "version": "0.0.0",
   "description": "Notify customers and staff of incidents.",
-  "main": "./bin/jpc-notify",
+  "main": "./bin/sebastian",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
