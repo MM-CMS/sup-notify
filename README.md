@@ -1,3 +1,5 @@
+<img src="./tools/sebastian.gif" style="float: left;">
+
 # sebastian
 
 In Disney's The Little Mermaid, Sebastian is Triton's servant. Sebastian is tasked with notifying Triton of any changes in Ariel (going to the surface, exchanging her voice for a potion with Ursula that turns her human, etc).
