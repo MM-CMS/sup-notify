@@ -2,11 +2,9 @@
 
 In Disney's The Little Mermaid, Sebastian is Triton's servant. Sebastian is tasked with notifying Triton of any changes in Ariel (going to the surface, exchanging her voice for a potion with Ursula that turns her human, etc).
 
-In Joyent's Triton Cloud, Sebastian is the Support Team's servant. Sebastian is tasked with notifying customers of any changes in the Triton Cloud (maintenance, incidents, etc).
+In Joyent's Triton Cloud, Sebastian is the Support Team's servant. `sebastian` is tasked with notifying customers of any changes in the Triton Cloud (maintenance, incidents, etc).
 
-`sebastian` is a CLI tool used by the Support and Operations teams to create ZenDesk tickets for customers to inform them of incidents and maintenance.
-
-Eventually this will also be a node_module used by some other forms of front-ends (API, web front-end).
+`sebastian` talks to each of the datacenters in the Triton Cloud in order to gather information, massages this information, then creates tickets for our customer via ZenDesk. Eventually this will also be a node_module used by some other forms of front-ends (API, web front-end).
 
 The immediate goal is to turn some input into a list of affected containers, and with this list create a notification from a template. Examples of "some input":
 
