@@ -1,8 +1,12 @@
-# node-jpc-notify
+# sebastian
 
-node-jpc-notify is a CLI tool used by the Support and Operations teams to create ZenDesk tickets for customers to inform them of incidents and maintenance.
+![sebastian.gif](./tools/sebastian.gif)
 
-Eventually this will also be a node_module used by some other forms of front-ends (API, web front-end).
+In Disney's The Little Mermaid, Sebastian is Triton's servant. Sebastian is tasked with notifying Triton of any changes in Ariel (going to the surface, exchanging her voice for a potion with Ursula that turns her human, etc).
+
+In Joyent's Triton Cloud, Sebastian is the Support Team's servant. `sebastian` is tasked with notifying customers of any changes in the Triton Cloud (maintenance, incidents, etc).
+
+`sebastian` talks to each of the datacenters in the Triton Cloud in order to gather information, massages this information, then creates tickets for our customer via ZenDesk. Eventually this will also be a node_module used by some other forms of front-ends (API, web front-end).
 
 The immediate goal is to turn some input into a list of affected containers, and with this list create a notification from a template. Examples of "some input":
 
@@ -19,19 +23,19 @@ Examples of a template:
     - Consolidated list per customer of container downtime based on a list of compute nodes that are to be rebooted during a given window
     - Consolidated list per customer of container downtime based on a list of containers that are to be migrated during a given window
 
-The longer term goal is to have "some input" be an INC/CM JIRA ticket. This ticket would contain the relevant input fields (see above list for examples), the template to be used, and start/end times of the incident/maintenance. Once the JIRA ticket has been sufficiently filled out (as determined by the Incident Manager), it is at this point that `jpc-notify` can be invoked with the JIRA ticket ID and the notifications will go out to the customer. Exactly how this will happen (e.g. automatically via some JIRA trigger, manually via CLI giving JIRA ID) is yet to be determined.
+The longer term goal is to have "some input" be an INC/CM JIRA ticket. This ticket would contain the relevant input fields (see above list for examples), the template to be used, and start/end times of the incident/maintenance. Once the JIRA ticket has been sufficiently filled out (as determined by the Incident Manager), it is at this point that `sebastian` can be invoked with the JIRA ticket ID and the notifications will go out to the customer. Exactly how this will happen (e.g. automatically via some JIRA trigger, manually via CLI giving JIRA ID) is yet to be determined.
 
 ## Usage
 
-`jpc-notify` is the command you'll be working with, and it provides a number of interfaces to gather information and create ZenDesk tickets.
+`sebastian` is the command you'll be working with, and it provides a number of interfaces to gather information and create ZenDesk tickets.
 
 Below are some examples of using the tool in its current state.
 
 ### Individual instances
 
 ```
-richard@Richards-MBP-Joyent ~/Projects/joyent/node-jpc-notify
-$ ./bin/jpc-notify tickets create --jira=OPS-X --type=vms --date_start=20160701T100000Z --date_end=20160701T120000Z --template=incident/cn_reboot a36b984b-c67a-4018-a714-557a4e17d9ae 6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-sebastian
+$ ./bin/sebastian tickets create --jira=OPS-X --type=vms --date_start=20160701T100000Z --date_end=20160701T120000Z --template=incident/cn_reboot a36b984b-c67a-4018-a714-557a4e17d9ae 6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99
 Customer 4c27d519-f301-4d6b-a654-6b709082be72 has 1 instances affected
 Customer 7a970971-1386-49c4-9b85-f9b02adf7705 has 1 instances affected
 Hello,
@@ -46,8 +50,8 @@ Our Operations and Engineering teams are looking into this incident, and we will
 #### Passing servers as arguments
 
 ```
-richard@Richards-MBP-Joyent ~/Projects/joyent/node-jpc-notify
-$ ./bin/jpc-notify tickets create --type=servers --template=incident/cn_reboot --date_start=20160629T103000Z --date_end=20160629T104000Z 44454c4c-5100-1054-8057-c3c04f563432
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-sebastian
+$ ./bin/sebastian tickets create --type=servers --template=incident/cn_reboot --date_start=20160629T103000Z --date_end=20160629T104000Z 44454c4c-5100-1054-8057-c3c04f563432
 Customer 530961f3-3a6e-4ce6-bebd-e5be79f4ebc6 has 2 instances affected
 Customer 7b315468-c6be-46dc-b99b-9c1f59224693 has 1 instances affected
 ...
@@ -58,8 +62,8 @@ Customer 7b315468-c6be-46dc-b99b-9c1f59224693 has 1 instances affected
 #### Using stdin
 
 ```
-richard@Richards-MBP-Joyent ~/Projects/joyent/node-jpc-notify
-$ cat sandbox/servers.txt | ./bin/jpc-notify tickets create --type=servers --template=incident/cn_reboot --date_start=20160629T103000Z --date_end=20160629T104000Z -
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-sebastian
+$ cat sandbox/servers.txt | ./bin/sebastian tickets create --type=servers --template=incident/cn_reboot --date_start=20160629T103000Z --date_end=20160629T104000Z -
 Customer 9dce1460-0c4c-4417-ab8b-25ca478c5a78 has 4 instances affected
 Customer 530961f3-3a6e-4ce6-bebd-e5be79f4ebc6 has 2 instances affected
 ...
@@ -72,8 +76,8 @@ Customer 530961f3-3a6e-4ce6-bebd-e5be79f4ebc6 has 2 instances affected
 Now only works via stdin:
 
 ```
-richard@Richards-MBP-Joyent ~/Projects/joyent/node-jpc-notify
-$ cat sandbox/windows.csv | ./bin/jpc-notify tickets create --type=windows --template=maintenance/cn_reboot_windows -
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-sebastian
+$ cat sandbox/windows.csv | ./bin/sebastian tickets create --type=windows --template=maintenance/cn_reboot_windows -
 Customer 4c27d519-f301-4d6b-a654-6b709082be72 has 2 days of maintenance
     2016-06-29
         Instance db9684bf-e78f-c7f8-9432-bc2e1472bc98's window is from 10:00:00 to 12:00:00
