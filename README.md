@@ -1,151 +1,118 @@
-# node-jpc-notify
+# sebastian
 
-node-jpc-notify is a CLI tool used by the Support and Operations teams to create ZenDesk tickets for customers to inform them of incidents and maintenance.
+![sebastian.gif](./tools/sebastian.gif)
 
-Eventually this will also be a node_module used by some other forms of front-ends (API, web front-end).
+In Disney's The Little Mermaid, Sebastian is Triton's servant. Sebastian is tasked with notifying Triton of any changes in Ariel (going to the surface, exchanging her voice for a potion with Ursula that turns her human, etc).
 
-Head to the [wiki](https://hub.joyent.com/wiki/display/support/Support+Team%3A+jpc-notify) for more information on using this tool in the JPC.
+In Joyent's Triton Cloud, Sebastian is the Support Team's servant. `sebastian` is tasked with notifying customers of any changes in the Triton Cloud (maintenance, incidents, etc).
+
+`sebastian` talks to each of the datacenters in the Triton Cloud in order to gather information, massages this information, then creates tickets for our customer via ZenDesk. Eventually this will also be a node_module used by some other forms of front-ends (API, web front-end).
+
+The immediate goal is to turn some input into a list of affected containers, and with this list create a notification from a template. Examples of "some input":
+
+- Server UUID or hostname
+- Container UUID
+- Customer email address (including CC of full Organisation as, recorded in ZenDesk)
+- Rack ID
+
+Examples of a template:
+
+- Incident
+    - Compute node reboot
+- Maintenance
+    - Consolidated list per customer of container downtime based on a list of compute nodes that are to be rebooted during a given window
+    - Consolidated list per customer of container downtime based on a list of containers that are to be migrated during a given window
+
+The longer term goal is to have "some input" be an INC/CM JIRA ticket. This ticket would contain the relevant input fields (see above list for examples), the template to be used, and start/end times of the incident/maintenance. Once the JIRA ticket has been sufficiently filled out (as determined by the Incident Manager), it is at this point that `sebastian` can be invoked with the JIRA ticket ID and the notifications will go out to the customer. Exactly how this will happen (e.g. automatically via some JIRA trigger, manually via CLI giving JIRA ID) is yet to be determined.
 
 ## Usage
 
-Run `jpc-notify` or `jpc-notify --help` for help.
+`sebastian` is the command you'll be working with, and it provides a number of interfaces to gather information and create ZenDesk tickets.
+
+Below are some examples of using the tool in its current state.
+
+### Individual instances
 
 ```
-$ jpc-notify
-usage: jpc-notify [OPTIONS]
-options:
-    --type=maintenance|incident    REQUIRED: Type of notification.
-    --message_file=FILE            REQUIRED: Path to a markdown file for the
-                                   ticket's body.
-    --jira=INC-X                   REQUIRED: JIRA for this notification.
-    --subject="Subject goes here"  Subject of the ticket. Defaults to: 'Default
-                                   subject'.
-    --send                         Pass this variable to send the notifications
-                                   to customers.
-    -h, --help                     Print this help and exit.
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-sebastian
+$ ./bin/sebastian tickets create --jira=OPS-X --type=vms --date_start=20160701T100000Z --date_end=20160701T120000Z --template=incident/cn_reboot a36b984b-c67a-4018-a714-557a4e17d9ae 6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99
+Customer 4c27d519-f301-4d6b-a654-6b709082be72 has 1 instances affected
+Customer 7a970971-1386-49c4-9b85-f9b02adf7705 has 1 instances affected
+Hello,
 
-  Servers:
-    --servers=HOSTNAME             List customers affected by compute nodes by
-                                   hostname.
-    --servers_file=FILE            List customers affected by compute nodes by
-                                   hostname, as read from a file.
+At approximately 10:00 (UTC), 01-Jul-2016, the physical server that hosts the instance(s) listed above rebooted, and was confirmed to be back online at approximately 12:00 (UTC), 01-Jul-2016.
 
-  VMs:
-    --vms=VM_UUID                  List customers affected by list of machines.
-    --vms_file=FILE                List customers affected by list of machines,
-                                   as read from a file.
+Our Operations and Engineering teams are looking into this incident, and we will update you with any further information within 1 business day.
 ```
 
-Logging by default is to stdout and to a file (location displayed at end of output from the tool), so it's best to pipe to `bunyan` when using the tool.
+### Compute node reboot
 
-|Flag|Description|
-|:-|:-|
-|`--type`|**Required**. Currently supports two ticket types: maintenance and incident.|
-|`--message_file`|**Required**. A local file that contains some markdown-formatted text.|
-|`--jira`|**Required**. The JIRA ticket that this notification is referring to.|
-|`--subject`|Override the default subject of the ticket.|
-|`--send`|Pass this flag to go through the process of actually sending tickets. Otherwise, the tool will just output some details on the customers/VMs that it has found.|
-|`-h` / `--help`|Display the help output|
-
-One of the following is **required**.
-
-|Flag|Description|
-|:-|:-|
-|`--servers`|Can be used to pass 1 or many servers hostnames to the tool.|
-|`--servers_file`|A local file that contains a line-delimited list of server hostnames.|
-|`--vms`|Can be used to pass 1 or many VM UUIDs to the tool.|
-|`--vms_file`|A local file that contains a line-delimited list of VM UUIDs.|
-|`--windows_file`|A local CSV file that contains the vm_uuid, owner_uuid, date and utc_window. See Examples section for an example.|
-
-## Examples
-
-### Passing a line-delimited list of machine UUIDs
+#### Passing servers as arguments
 
 ```
-$ cat /var/tmp/machines.txt
-2b2bd763-0cb6-64f6-ac21-f80dd1f28507
-24f2ba85-906f-427c-863d-fda1ff473a6a
-6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99
-$ cat /var/tmp/message.md
-This is a test ticket sent via jpc-notify.
-$ jpc-notify --vms_file=/var/tmp/machines.txt --message_file=/var/tmp/message.md --type=maintenance --jira=OPS-X | bunyan
-[2015-03-02T10:58:19.465Z] DEBUG: jpc-notify/27749 on Richards-MacBook-Pro.local:  (api=vmapi, path=/vms/2b2bd763-0cb6-64f6-ac21-f80dd1f28507)
-[2015-03-02T10:58:19.714Z] DEBUG: jpc-notify/27749 on Richards-MacBook-Pro.local:  (api=vmapi, path=/vms/24f2ba85-906f-427c-863d-fda1ff473a6a)
-[2015-03-02T10:58:19.948Z] DEBUG: jpc-notify/27749 on Richards-MacBook-Pro.local:  (api=vmapi, path=/vms/6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99)
-[2015-03-02T10:58:20.179Z]  INFO: jpc-notify/27749 on Richards-MacBook-Pro.local: got 3 machines
-[2015-03-02T10:58:20.179Z] DEBUG: jpc-notify/27749 on Richards-MacBook-Pro.local:  (uuid=4c27d519-f301-4d6b-a654-6b709082be72, datacenter=eu-ams-1)
-[2015-03-02T10:58:20.439Z] DEBUG: jpc-notify/27749 on Richards-MacBook-Pro.local:  (uuid=7a970971-1386-49c4-9b85-f9b02adf7705, datacenter=eu-ams-1)
-[2015-03-02T10:58:20.641Z]  INFO: jpc-notify/27749 on Richards-MacBook-Pro.local: got 2 customers
-- customer: richardbradley (4c27d519-f301-4d6b-a654-6b709082be72)
-  - vm: api (2b2bd763-0cb6-64f6-ac21-f80dd1f28507)
-  - vm: mc0 (24f2ba85-906f-427c-863d-fda1ff473a6a)
-- customer: PeterG (7a970971-1386-49c4-9b85-f9b02adf7705)
-  - vm: myams (6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99)
-No tickets have been created (pass --send to actually notify customers)
-Logfile: /var/tmp/jpc-notify-2015-03-02T10:58:19.430Z.log
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-sebastian
+$ ./bin/sebastian tickets create --type=servers --template=incident/cn_reboot --date_start=20160629T103000Z --date_end=20160629T104000Z 44454c4c-5100-1054-8057-c3c04f563432
+Customer 530961f3-3a6e-4ce6-bebd-e5be79f4ebc6 has 2 instances affected
+Customer 7b315468-c6be-46dc-b99b-9c1f59224693 has 1 instances affected
+...
 ```
 
-### Passing multiple `--vms` flags
+**Note** Server hostnames still to be supported.
+
+#### Using stdin
 
 ```
-$ cat /var/tmp/message.md
-This is a test ticket sent via jpc-notify.
-$ jpc-notify --vms=2b2bd763-0cb6-64f6-ac21-f80dd1f28507 --vms=24f2ba85-906f-427c-863d-fda1ff473a6a --message_file=/var/tmp/message.md --type=maintenance --jira=OPS-X | bunyan
-[2015-03-02T11:04:19.154Z] DEBUG: jpc-notify/27784 on Richards-MacBook-Pro.local:  (api=vmapi, path=/vms/2b2bd763-0cb6-64f6-ac21-f80dd1f28507)
-[2015-03-02T11:04:19.405Z] DEBUG: jpc-notify/27784 on Richards-MacBook-Pro.local:  (api=vmapi, path=/vms/24f2ba85-906f-427c-863d-fda1ff473a6a)
-[2015-03-02T11:04:19.637Z]  INFO: jpc-notify/27784 on Richards-MacBook-Pro.local: got 2 machines
-[2015-03-02T11:04:19.638Z] DEBUG: jpc-notify/27784 on Richards-MacBook-Pro.local:  (uuid=4c27d519-f301-4d6b-a654-6b709082be72, datacenter=eu-ams-1)
-[2015-03-02T11:04:19.915Z]  INFO: jpc-notify/27784 on Richards-MacBook-Pro.local: got 1 customers
-- customer: richardbradley (4c27d519-f301-4d6b-a654-6b709082be72)
-  - vm: api (2b2bd763-0cb6-64f6-ac21-f80dd1f28507)
-  - vm: mc0 (24f2ba85-906f-427c-863d-fda1ff473a6a)
-No tickets have been created (pass --send to actually notify customers)
-Logfile: /var/tmp/jpc-notify-2015-03-02T11:04:19.119Z.log
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-sebastian
+$ cat sandbox/servers.txt | ./bin/sebastian tickets create --type=servers --template=incident/cn_reboot --date_start=20160629T103000Z --date_end=20160629T104000Z -
+Customer 9dce1460-0c4c-4417-ab8b-25ca478c5a78 has 4 instances affected
+Customer 530961f3-3a6e-4ce6-bebd-e5be79f4ebc6 has 2 instances affected
+...
 ```
 
-### Using the `--windows_file` flag
-```
-richard@Richards-MBP-Joyent ~/Projects/joyent/node-jpc-notify
-$ cat /var/tmp/windows.csv
-55802fa7-5dc7-46e3-9f62-98198cd4b5dc,4c27d519-f301-4d6b-a654-6b709082be72,20150410,09:00 - 10:00,01:00 - 02:00
-43888b5c-df30-65e2-dee2-a9d8b2007e24,4c27d519-f301-4d6b-a654-6b709082be72,20150410,09:00 - 10:00,01:00 - 02:00
-24f2ba85-906f-427c-863d-fda1ff473a6a,4c27d519-f301-4d6b-a654-6b709082be72,20150410,10:00 - 11:00,02:00 - 03:00
-2b2bd763-0cb6-64f6-ac21-f80dd1f28507,4c27d519-f301-4d6b-a654-6b709082be72,20150410,10:00 - 11:00,02:00 - 03:00
-richard@Richards-MBP-Joyent ~/Projects/joyent/node-jpc-notify
-$ jpc-notify --windows_file=/var/tmp/windows.csv --jira=OPS-X --type=maintenance --message_file=/var/tmp/message.md | bunyan
-[2016-03-24T08:51:38.596Z]  INFO: jpc-notify/53850 on Richards-MacBook-Pro-2.local: Logfile: /var/tmp/jpc-notify-2016-03-24T08:51:38.452Z.log
-[2016-03-24T08:51:40.110Z]  INFO: jpc-notify/53850 on Richards-MacBook-Pro-2.local: got 4 machines
-[2016-03-24T08:51:41.726Z]  INFO: jpc-notify/53850 on Richards-MacBook-Pro-2.local: got 1 customer records
-- customer:    4c27d519-f301-4d6b-a654-6b709082be72 (richard.bradley@joyent.com)
-  - date:      10-Apr-2015
-    - window:  09:00 - 10:00 UTC
-      - vm:    55802fa7-5dc7-46e3-9f62-98198cd4b5dc (penny)
-      - vm:    43888b5c-df30-65e2-dee2-a9d8b2007e24 (maya)
-    - window:  10:00 - 11:00 UTC
-      - vm:    24f2ba85-906f-427c-863d-fda1ff473a6a (mc0)
-      - vm:    2b2bd763-0cb6-64f6-ac21-f80dd1f28507 (api)
-No tickets have been created (pass --send to actually notify customers)
-Total: 4 vms across 1 customers/tickets
-Logfile: /var/tmp/jpc-notify-2016-03-24T08:51:38.452Z.log
-[2016-03-24T08:51:41.909Z]  INFO: jpc-notify/ufds/53850 on Richards-MacBook-Pro-2.local: LDAP client disconnected
-```
+**Note** stdin will apply to `--type=vms`, too.
 
-**Note:** The following format is required for the windows CSV file.
+### Upcoming reboot party (aka. windows)
+
+Now only works via stdin:
 
 ```
-vm_uuid,owner_uuid,date,window_utc
+richard@Richards-MBP-Joyent ~/Projects/joyent/node-sebastian
+$ cat sandbox/windows.csv | ./bin/sebastian tickets create --type=windows --template=maintenance/cn_reboot_windows -
+Customer 4c27d519-f301-4d6b-a654-6b709082be72 has 2 days of maintenance
+    2016-06-29
+        Instance db9684bf-e78f-c7f8-9432-bc2e1472bc98's window is from 10:00:00 to 12:00:00
+    2016-07-01
+        Instance ecae6dce-67c4-4008-b8a7-fca5cceba8d4's window is from 10:00:00 to 12:00:00
+        Instance eb1f8e85-fb7f-4d6c-a0f4-6ddf11a8fe96's window is from 12:00:00 to 14:00:00
+        Instance a36b984b-c67a-4018-a714-557a4e17d9ae's window is from 14:00:00 to 16:00:00
+Customer 7a970971-1386-49c4-9b85-f9b02adf7705 has 2 days of maintenance
+    2016-06-29
+        Instance 6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99's window is from 10:00:00 to 12:00:00
+    TBD
+        Instance fb418bd0-9c30-6652-ff3b-961e8c7c2afa's window is from TBD to TBD
+Hello,
+
+The above instances will be restarted during their corresponding windows.
+
+Have a nice day.
 ```
 
-|Variable|Description|Format|
-|:-|:-|:-|
-|`vm_uuid`|This is the UUID of a VM|A valid UUID|
-|`owner_uuid`|This is the owner_uuid of the VM|A valid UUID|
-|`date`|This is the date of the window|`YYYYMMDD`|
-|`window_utc`|This is the UTC window|String representing the time of the window|
+Where `sandbox/windows.csv` contains the following.
 
-`date` must be formatted correctly, as it is parsed to generate a JavaScript `Date` object. `window_utc` is a string and its respective timezone (UTC) is added to the output.
+```
+ecae6dce-67c4-4008-b8a7-fca5cceba8d4,20160701T100000Z,20160701T120000Z
+eb1f8e85-fb7f-4d6c-a0f4-6ddf11a8fe96,20160701T120000Z,20160701T140000Z
+a36b984b-c67a-4018-a714-557a4e17d9ae,20160701T140000Z,20160701T160000Z
+db9684bf-e78f-c7f8-9432-bc2e1472bc98,20160629T100000Z,20160629T120000Z
+6bad634a-0e36-ccfc-fe8b-a5ca0f56ef99,20160629T100000Z,20160629T120000Z
+fb418bd0-9c30-6652-ff3b-961e8c7c2afa,TBD,TBD
+```
 
-## Requirements
+**Note** While this is currently using the `maintenance/cn_reboot_windows` template, it's actually more suited to how our mass migrations. The tool *will* support passing a server uuid and window start/end times, like so:
 
-- VPN connection
-- Either personal ZD credentials, or API-only credentials
+```
+server_0_uuid,20160701T100000Z,20160701T120000Z
+server_1_uuid,20160701T120000Z,20160701T140000Z
+server_2_uuid,20160701T140000Z,20160701T160000Z
+server_3_uuid,20160629T100000Z,20160629T120000Z
+```
