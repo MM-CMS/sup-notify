@@ -1,6 +1,6 @@
 {
   "name": "sebastian",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Notify customers and staff of incidents.",
   "main": "./bin/sebastian",
   "scripts": {
