@@ -52,7 +52,9 @@ some_other_type_of_incident_initial.json
 This file contains the markdown-formatted message that the user will see in the ticket. It also supports some [Handlebars templating syntax](http://handlebarsjs.com/), which are:
 
 **`start`**: A date and time object requested as input when creating tickets, formatted like so: "16:13, 22-Sep-2016". This is the start date/time of the incident/maintenance/etc.
+
 **`end`**: Same as `start`, but for the end of the incident/maintenance/etc.
+
 **`instance_list`**: This will contain the list of instances that the tool has generated based on its inputs
 
 ### `.json` file (metadata)
