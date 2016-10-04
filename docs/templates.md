@@ -1,6 +1,6 @@
 # Templates
 
-Templates are used in sebastian in order to reduce the amount of time users of the tool spend creating notices. 
+Templates are used in sebastian in order to reduce the amount of time users of the tool spend creating notices.
 
 ## Discovery
 
@@ -60,10 +60,17 @@ This file contains the markdown-formatted message that the user will see in the 
 This file must be valid JSON, and the following data should be included.
 
 **`title`**: [internal only] Our title for the template
+
 **`description`**: [internal only] Description of the template's usage. Appears in `sebastian templates list`
+
 **`subject`**: _REQUIRED_ Subject of the ticket that is created for the customer
+
 **`version`**: [internal only] Version of the template
+
 **`level`**: _REQUIRED_ One of "incident", "maintenance", "emergency" or "general". Determines the group/category that the ticket ends up in in ZenDesk
+
 **`resources`**: _REQUIRED_ List of "servers", "instances", and/or "customers". Validates the inputs from the tool against the template (to prevent e.g. using a template that has no `instance_list` with instance UUID inputs)
+
 **`required_fields`**: _REQUIRED_ List of "start" and/or "end". Prompts user of the tool for input data in order to populate template
+
 **`csv`**: [internal only] Determines if this template should be used as a set of windows (see "Upcoming reboot party (aka. windows)")
