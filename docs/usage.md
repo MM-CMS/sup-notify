@@ -13,8 +13,11 @@ For example, if you pass 2 arguments, 1 server hostname and 1 email address, the
 The following must be defined:
 
 `UFDS_URL` : eg `ldaps://1.2.3.4:636`
+
 `UFDS_DN` : eg `cn=root`
+
 `UFDS_PASSWORD` : password for UFDS
+
 
 ## Options
 
