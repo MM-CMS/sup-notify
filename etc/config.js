@@ -78,9 +78,9 @@ module.exports = {
             "napi": { "url": "http://10.0.96.11" },
             "papi": { "url": "http://10.0.97.190" },
             "ufds": {
-                "url": "ldaps://10.0.96.21:636",
-                "bindDN": "cn=root",
-                "bindPassword": "secret"
+                "url": process.env.UFDS_URL,
+                "bindDN": process.env.UFDS_DN,
+                "bindPassword": process.env.UFDS_PASSWORD
             },
             "vmapi": { "url": "http://10.0.96.73" },
             "workflow": { "url": "http://10.0.96.15" }
