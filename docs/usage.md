@@ -8,6 +8,14 @@ When using the tool, the type of resource (e.g. whether it's a server or an inst
 
 For example, if you pass 2 arguments, 1 server hostname and 1 email address, the tool will only find 1 server record, because searching for an email address as a server will return no results.
 
+## Environment
+
+The following must be defined:
+
+`UFDS_URL` : eg `ldaps://1.2.3.4:636`
+`UFDS_DN` : eg `cn=root`
+`UFDS_PASSWORD` : password for UFDS
+
 ## Options
 
 **`jira`**: _REQUIRED_ Populates the JIRA field in ZenDesk for tracking of tickets
