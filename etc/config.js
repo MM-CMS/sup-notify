@@ -41,7 +41,7 @@ module.exports = {
         }
     },
     log_dir: '/var/tmp',
-    templates_directory: '/opt/local/lib/triton-cloud-notification-templates/new_notification_templates',
+    templates_directory: '/opt/local/lib/triton-cloud-notification-templates/notification_templates',
     message_footer: '\nThanks,\nJoyent Support',
     zendesk_create_concurrency: 1,
     "datacenters": {
