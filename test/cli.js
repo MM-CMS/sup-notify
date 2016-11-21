@@ -6,6 +6,10 @@ var PROGNAME = './bin/sup-notify';
 
 describe('CLI', function(){
     describe('Gather data by instance UUID list', function(){
+        it('UFDS Environment variables must be set', function () {
+            assert.equal(true,
+                !!(process.env.UFDS_PASSWORD && process.env.UFDS_URL && process.env.UFDS_DN));
+        });
         it('args', function(done){
             forkExecWait({argv: [
                 PROGNAME,
