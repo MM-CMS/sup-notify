@@ -1,10 +1,10 @@
 # Templates
 
-Templates are used in sebastian in order to reduce the amount of time users of the tool spend creating notices.
+Templates are used in sup-notify in order to reduce the amount of time users of the tool spend creating notices.
 
 ## Discovery
 
-To find out what templates are available to you, run `sebastian templates list`. For example:
+To find out what templates are available to you, run `sup-notify templates list`. For example:
 
 ```
 NAME                                   TYPE                   DESCRIPTION
@@ -18,10 +18,10 @@ scheduled_maintenance/compute_windows  scheduled_maintenance  Notify users of ma
 You would then use the `NAME` of the template when creating a notification, for example:
 
 ```
-sebastian tickets create --template=incidents/compute_resolved ...
+sup-notify tickets create --template=incidents/compute_resolved ...
 ```
 
-These templates will have a set of required fields that must be passed to `sebastian tickets create` in order for them to be used, and these will be prompted for when attempting to send notifications.
+These templates will have a set of required fields that must be passed to `sup-notify tickets create` in order for them to be used, and these will be prompted for when attempting to send notifications.
 
 They will also be tied to a certain set of resources. For example, `incidents/compute_resolved` can only be used with servers or instances as resource input, not a list of email addresses.
 
@@ -63,7 +63,7 @@ This file must be valid JSON, and the following data should be included.
 
 **`title`**: [internal only] Our title for the template
 
-**`description`**: [internal only] Description of the template's usage. Appears in `sebastian templates list`
+**`description`**: [internal only] Description of the template's usage. Appears in `sup-notify templates list`
 
 **`subject`**: _REQUIRED_ Subject of the ticket that is created for the customer
 

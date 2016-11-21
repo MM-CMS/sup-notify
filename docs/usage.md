@@ -1,6 +1,6 @@
 # Usage
 
-`sebastian` is the command you'll be working with, and it provides a number of interfaces to gather information and create ZenDesk tickets.
+`sup-notify` is the command you'll be working with, and it provides a number of interfaces to gather information and create ZenDesk tickets.
 
 The resources we're sending notifications about (e.g. compute nodes, instances, emails) are passed as arguments (or `stdin`), and the required information for generating the tickets is passed as options.
 
@@ -42,8 +42,8 @@ The following must be defined:
 ### Compute infrastructure incident, resolved by the time notices are sent. Input as arguments
 
 ```
-$ sebastian tickets create --jira=OPS-X --template=incidents/compute_resolved --start=20160922T161200Z --end=20160922T161300Z PAFSTWV42
-[2016-09-30T09:33:52.112Z] logfile: /var/tmp/sebastian-2016-09-30T09:33:51.807Z.log
+$ sup-notify tickets create --jira=OPS-X --template=incidents/compute_resolved --start=20160922T161200Z --end=20160922T161300Z PAFSTWV42
+[2016-09-30T09:33:52.112Z] logfile: /var/tmp/sup-notify-2016-09-30T09:33:51.807Z.log
 [2016-09-30T09:33:52.510Z] got 1 servers
 [2016-09-30T09:33:52.908Z] got 10 instances
 [2016-09-30T09:33:54.154Z] got 10 customers
@@ -56,8 +56,8 @@ Customer magnusnordlander has 1 instances affected
 ### Network infrastructure incident affecting entire rack (multiple servers), still ongoing by the time notices are sent. Input as `stdin`
 
 ```
-$ cat /var/tmp/servers.txt | sebastian tickets create --template=incidents/network_ongoing --start=20160629T103000Z -
-[2016-09-30T09:41:37.740Z] logfile: /var/tmp/sebastian-2016-09-30T09:41:37.445Z.log
+$ cat /var/tmp/servers.txt | sup-notify tickets create --template=incidents/network_ongoing --start=20160629T103000Z -
+[2016-09-30T09:41:37.740Z] logfile: /var/tmp/sup-notify-2016-09-30T09:41:37.445Z.log
 [2016-09-30T09:41:38.151Z] got 2 servers
 [2016-09-30T09:41:38.574Z] got 17 instances
 ...
@@ -68,8 +68,8 @@ Where `/var/tmp/servers.txt` contains a list of line separated server hostnames 
 ### Upcoming reboot party (aka. windows)
 
 ```
-cat /var/tmp/windows.csv | sebastian tickets create --jira=OPS-X --template=scheduled_maintenance/compute_windows -
-[2016-09-30T09:48:29.393Z] logfile: /var/tmp/sebastian-2016-09-30T09:48:29.094Z.log
+cat /var/tmp/windows.csv | sup-notify tickets create --jira=OPS-X --template=scheduled_maintenance/compute_windows -
+[2016-09-30T09:48:29.393Z] logfile: /var/tmp/sup-notify-2016-09-30T09:48:29.094Z.log
 [2016-09-30T09:48:30.620Z] got 7 instances
 [2016-09-30T09:48:31.459Z] got 2 customers
 [2016-09-30T09:48:32.280Z] summary of information
@@ -110,8 +110,8 @@ fb418bd0-9c30-6652-ff3b-961e8c7c2afa,TBD,TBD
 A custom template might be used for one-off notifications, or where a pre-made template doesn't quite apply. While it's a good idea to have all templates we send stored in GitHub in the templates project for historical reasons, the tool needs to provide a way to supply a custom template so that the whole workflow of creating a new template isn't required.
 
 ```
-$ sebastian tickets create richard.bradley@joyent.com --jira=OPS-X --template=custom --message=/var/tmp/message.md --level=incident --subject="Something here"
-[2016-10-04T09:57:15.600Z] logfile: /var/tmp/sebastian-2016-10-04T09:57:14.826Z.log
+$ sup-notify tickets create richard.bradley@joyent.com --jira=OPS-X --template=custom --message=/var/tmp/message.md --level=incident --subject="Something here"
+[2016-10-04T09:57:15.600Z] logfile: /var/tmp/sup-notify-2016-10-04T09:57:14.826Z.log
 [2016-10-04T09:57:17.008Z] got 1 customers
 [2016-10-04T09:57:17.626Z] summary of information
 Customer richardbradley has 0 instances affected

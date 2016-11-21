@@ -2,13 +2,13 @@ var assert = require('assert-plus');
 var forkExecWait = require('forkexec').forkExecWait;
 var vasync = require('vasync');
 
-var SEBASTIAN = './bin/sebastian';
+var PROGNAME = './bin/sup-notify';
 
 describe('CLI', function(){
     describe('Gather data by instance UUID list', function(){
         it('args', function(done){
             forkExecWait({argv: [
-                SEBASTIAN,
+                PROGNAME,
                 'tickets',
                 'create',
                 '--jira=TEST-X',
