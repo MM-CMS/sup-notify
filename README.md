@@ -18,4 +18,4 @@ See [usage.md](./docs/usage.md) on how to use the tool, and [templates.md](./doc
 
 ## History
 
-sup-notify was originally called "sebastian".
+sup-notify was originally named "[sebastian](https://github.com/joyent/node-sebastian/blob/e9c6bf112568659f856f6ab7c6e6c138b1f6cba9/README.md)".
