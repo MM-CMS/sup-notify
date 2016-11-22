@@ -1,7 +1,0 @@
-#!/usr/bin/env node
-
-console.warn("\nWarning:\n\tThe `sebastian` command has been renamed `sup-notify`.\n" + 
-	"\tThis command will be removed in future versions.\n" + 
-	"\tPlease update any scripts, documentation, or links.\n");
-
-require('../lib/cli').main();
