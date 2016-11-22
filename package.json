@@ -1,10 +1,10 @@
 {
-  "name": "sebastian",
+  "name": "sup-notify",
   "version": "1.0.0",
   "description": "Notify customers and staff of incidents.",
-  "main": "./bin/sebastian",
+  "main": "./bin/sup-notify",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha test"
   },
   "author": "Richard Bradley <richard.bradley@joyent.com>",
   "license": "ISC",
