@@ -37,6 +37,10 @@ The following must be defined:
 
 **`no_org`**: Disables gathering of ZenDesk Organisation records to populate tickets CC list (CC list still contains `JPC-Notifications-*` user-configurable roles)
 
+**`start`**: If needed, include the start time of incident in UTC, using basic ISO 8601 format. You can obtain the format needed by running `date +%Y%m%dT%H%M%SZ`, and adjusting the time accordingly.
+
+**`end`**: Same as start, but should be the end UTC time of incident.
+
 ## Examples
 
 ### Compute infrastructure incident, resolved by the time notices are sent. Input as arguments
