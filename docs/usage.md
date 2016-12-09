@@ -18,6 +18,12 @@ The following must be defined:
 
 `UFDS_PASSWORD` : password for UFDS
 
+`NOTIFY_TOKEN` :  ZenDesk API token
+
+`NOTIFY_USER` : ZenDesk user email
+
+`NOTIFY_URL` : ZenDesk URL eg `https://help.joyent.com`
+
 
 ## Options
 
