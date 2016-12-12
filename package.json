@@ -20,6 +20,7 @@
     "restify-clients": "^1.3.0",
     "sdc-clients-x": "git://github.com/chudley/node-sdc-clients-x",
     "tabula": "^1.8.0",
+    "validator": "^6.2.0",
     "vasync": "^1.6.3"
   },
   "directories": {
